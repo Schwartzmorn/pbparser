@@ -1,4 +1,3 @@
-import pbselector
 import re
 
 class PBDataExtractor:
@@ -41,6 +40,8 @@ class PBDataLineExtractor:
             res.append(aEx.extract(iPBNode))
         return res
 
+    def addExtractor(self, iExtractor):
+        self._dataExtractors.append(iExtractor)
+
     def __init__(self):
         self._dataExtractors = []
-        self._dataExtractors.append(PBDataExtractor("title", None, pbselector.getPBSelector(".detLink"))) 

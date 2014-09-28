@@ -44,6 +44,7 @@ def main(args):
         res = aSelector.search(aParser.document)
         print str(len(res)) + " results"
         dataLine = pbextractor.PBDataLineExtractor()
+        dataLine.addExtractor(pbextractor.PBDataExtractor("title", None, pbselector.getPBSelector(".detLink")))
         for node in res:
             line = dataLine.extractLine(node)
             print line

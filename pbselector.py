@@ -1,5 +1,4 @@
 import re
-import sys
 
 class PBTagSelector:
     def __init__(self, iSTag):
@@ -101,7 +100,3 @@ def getPBSelector(iSSelector):
         print "### ERROR ### Element and hierarchy selectors don't match"
         return None
     return PBSelector(theESelectors, theHSelectors)
-
-if __name__ == "__main__":
-    aPBSelect = getPBSelector(sys.argv[1])
-    print "End."
