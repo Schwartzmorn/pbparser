@@ -3,6 +3,7 @@ import sys
 import re
 import pbparser
 import pbselector
+import pbextractor
 
 gUrlMain = "https://thepiratebay.se/search/"
 gUrlSort = "/0/7/0"
@@ -40,9 +41,12 @@ def main(args):
         first = True
         aParser = parsePage(getPage(args[1]))
         aSelector = pbselector.getPBSelector(args[2])
-        aSelector.toText()
         res = aSelector.search(aParser.document)
-        print len(res)        
+        print str(len(res)) + " results"
+        dataLine = pbextractor.PBDataLineExtractor()
+        for node in res:
+            line = dataLine.extractLine(node)
+            print line
 
 if __name__ == "__main__":
     main(sys.argv)

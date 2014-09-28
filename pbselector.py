@@ -45,10 +45,8 @@ class PBSelector:
         res = set()
         if self._match(iPBNode):
             if self._nextSelector:
-                print "going to next"
                 PBSelector._searchChildren(self._nextSelector, iPBNode, res)
             else:
-                print "added one"
                 res.add(iPBNode)
                 if self._selectorType == "descendant":
                     PBSelector._searchChildren(self, iPBNode, res)
@@ -100,7 +98,7 @@ def getPBSelector(iSSelector):
     theHSelectors = re.split("[^\s>]+", aSelector)
     theHSelectors = theHSelectors[0:len(theHSelectors) - 1]
     if len(theESelectors) != len(theHSelectors):
-        print "### ERROR size ###"
+        print "### ERROR ### Element and hierarchy selectors don't match"
         return None
     return PBSelector(theESelectors, theHSelectors)
 
