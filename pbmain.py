@@ -7,6 +7,7 @@ import pbadmin
 import pbselector
 import webapp2
 import traceback
+import json
 
 def parsePage(iSUrl):
     try:
@@ -22,7 +23,7 @@ def parsePage(iSUrl):
 
 class PBPMain (webapp2.RequestHandler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.headers['Content-Type'] = 'application/json'
         url = re.search("/search/.*", self.request.url).group(0)
         url = url[8:len(url)]
         modelName = re.search("^[^/]*", url).group(0)
@@ -34,12 +35,14 @@ class PBPMain (webapp2.RequestHandler):
             aParser = parsePage(theUrl)
             aSelector = pbselector.getPBSelector(theModel.selector)
             res = aSelector.search(aParser.document)
+            theRes = []
             for node in res:
-                line = theDataLine.extractLine(node)
-                self.response.write(str(line) + '\n')
+                theRes.append(theDataLine.extractLine(node))
+            self.response.write(json.dumps(theRes))
         except:
-            self.response.write(modelName + '\n')
-            self.response.write('error + \n' + traceback.format_exc())
+            self.response.write("error")
+            print "error when writing page: "
+            print traceback.format_exc()
 
 application = webapp2.WSGIApplication([
     ('/search/.*', PBPMain),
