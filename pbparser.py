@@ -4,34 +4,52 @@ import re
 class PBData:
     def getType(self):
         return "data"
-    def toText(self, iILevel = 0):
+    def toString(self, iILevel = 0):
         aString = ""
         for i in range (0, iILevel):
             aString += "  "
         aString += self.data
-        print aString
+        return aString
     def __init__(self, iSData, iOParent):
         self.data = iSData
         self.parentNode = iOParent
 
 class PBNode:
+    def _sort(self, iSet, iRes):
+        if self in iSet:
+            iRes.append(self)
+        for aNode in self.childNodes:
+            if aNode.getType() == "element":
+                aNode._sort(iSet, iRes)
+
+    def sort(self, iSet):
+        res = []
+        self._sort(iSet, res)
+        return res
+
     def addNode(self, iONode):
-        self.childNodes.append(iONode)
+        if iONode:
+            if iONode.getType() == "data" and len(self.childNodes) > 0 and self.childNodes[-1:][0].getType() == "data":
+                self.childNodes[-1:][0].data += iONode.data
+            else:
+                self.childNodes.append(iONode)
     def getType(self):
         return "element"
-    def toText(self, iILevel = 0):
+
+    def toString(self, iILevel = 0):
         aString = ""
         for i in range (0, iILevel):
             aString += "  "
         aString += self.tag + ": "
         for key, value in self.attributes.iteritems():
             aString += key + "=" + value + " "
-        print aString
         for aNode in self.childNodes:
             try:
-                aNode.toText(iILevel + 1)
+                aString += aNode.toString(iILevel + 1)
             except:
                 print "### ERROR ###"
+        return aString + '\n'
+
     def __init__(self, iSTag, iDAttributes, iOParent):
         self.childNodes = []
         self.attributes = {}

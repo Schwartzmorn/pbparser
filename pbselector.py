@@ -5,28 +5,48 @@ class PBTagSelector:
         self.tag = iSTag
     def match(self, iPBNode):
         return iPBNode.tag == self.tag
-    def toText(self):
-        print "<" + self.tag + ">"
+    def toString(self):
+        return self.tag
 
 class PBAttributeSelector:
     def __init__(self, iSKey, iSValue):
-        self.key = iSKey
+        prune = False
+        self.type = iSKey[-1:]
+        if self.type in ['~', '|', '^', '$', '*']:
+            prune = True
+        if prune:
+            self.key = iSKey[0:-1]
+        else:
+            self.key = iSKey
+            self.type = ''
         self.value = iSValue
     def match(self, iPBNode):
         try:
-            return iPBNode.attributes[self.key] == self.value
+            theval = iPBNode.attributes[self.key]
+            if self.type == '':
+                return theval == self.value
+            elif self.type == '~':
+                return re.search("\s" + self.value + "\s", theval) != None
+            elif self.type == '^':
+                return theval.startswith(self.value)
+            elif self.type == '$':
+                return theval.endswith(self.value)
+            elif self.type == '*':
+                return self.value in theval
+            elif self.type == '|':
+                return theval.startswith(self.value + "-") or theval == self.value
         except:
             return False
-    def toText(self):
-        print self.key + "=" + self.value
+    def toString(self):
+        return "[" + self.key + self.type + "=" + self.value + "]"
 
 class PBClassSelector:
     def __init__(self, iSString):
         self.selectedClass = iSString
     def match(self, iPBNode):
         return self.selectedClass in iPBNode.classes
-    def toText(self):
-        print "is " + self.selectedClass
+    def toString(self):
+        return "." + self.selectedClass
 
 class PBSelector:
     def _match(self, iPBNode):
@@ -38,9 +58,13 @@ class PBSelector:
     def _searchChildren(iSelector, iPBNode, iResults):
         for aNode in iPBNode.childNodes:
             if aNode.getType() == "element":
-                iResults |= iSelector.search(aNode)
+                iResults |= iSelector._search(aNode)
 
-    def search(self, iPBNode):
+    def search(self, iDocument):
+        aSet = self._search(iDocument)
+        return iDocument.sort(aSet)
+
+    def _search(self, iPBNode):
         res = set()
         if self._match(iPBNode):
             if self._nextSelector:
@@ -84,12 +108,17 @@ class PBSelector:
         else:
             self._nextSelector = None
 
-    def toText(self):
-        print self._selectorType
+    def toString(self):
+        aString = ""
+        if self._selectorType == "child":
+            aString += ">"
+        else:
+            aString += " "
         for aSel in self._eSelectors:
-            aSel.toText()
+            aString += aSel.toString()
         if self._nextSelector:
-            self._nextSelector.toText()
+            aString += self._nextSelector.toString()
+        return aString
 
 def getPBSelector(iSSelector):
     aSelector = re.search("[^\s].*[^\s]", iSSelector).group(0)

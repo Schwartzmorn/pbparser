@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PBParser admin</title>
+    </head>
+    <body>
+        <form method="post" action="/admin">
+            <table>
+                <thead>
+                    <tr>
+                        <td>
+                            Model name
+                        </td>
+                        <td>
+                            Url
+                        </td>
+                        <td>
+                            Filter
+                        </td>
+                        <td>
+                            Selector
+                        </td>
+                        <td>
+                            Action
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" name="modelName" value="&$modelName" size="15" />
+                        </td>
+                        <td>
+                            <input type="text" name="url" value="&$modelUrl" size="25" />
+                        </td>
+                        <td>
+                            <input type="text" name="filt" value="&$modelFilt" size="25" />
+                        </td>
+                        <td>
+                            <input type="text" name="selector" value="&$modelSelector" size="25" />
+                        </td>
+                        <td>
+                            <input type="submit" name="actionModel" value="Get" />
+                            <input type="submit" name="actionModel" value="Put" />
+                            <input type="submit" name="actionModel" value="Delete" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+        <form method="post" action="/admin">
+            <table>
+                <thead>
+                    <tr>
+                        <td>
+                            Model name
+                        </td>
+                        <td>
+                            Title
+                        </td>
+                        <td>
+                            Selector
+                        </td>
+                        <td>
+                            Attribute
+                        </td>
+                        <td>
+                            Regex
+                        </td>
+                        <td>
+                            Action
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" name="modelName" value="&$modelName" size="15" />
+                        </td>
+                        <td>
+                            <input type="text" name="name" value="&$name" size="25" />
+                        </td>
+                        <td>
+                            <input type="text" name="exSelector" value="&$exSelector" size="25" />
+                        </td>
+                        <td>
+                            <input type="text" name="attribute" value="&$attribute" size="25" />
+                        </td>
+                        <td>
+                            <input type="text" name="regex" value="&$regex" size="25" />
+                        </td>
+                        <td>
+                            <input type="submit" name="actionExtractor" value="Get" />
+                            <input type="submit" name="actionExtractor" value="Put" />
+                            <input type="submit" name="actionExtractor" value="Delete" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+        <pre>
+            &$res
+        </pre>
+    </body>
+</html>

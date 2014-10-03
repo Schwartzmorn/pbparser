@@ -2,11 +2,11 @@ import urllib2
 import sys
 import re
 import pbparser
+import pbmodel
+import pbadmin
 import pbselector
-import pbextractor
-
-gUrlMain = "https://thepiratebay.se/search/"
-gUrlSort = "/0/7/0"
+import webapp2
+import traceback
 
 def parsePage(iSUrl):
     try:
@@ -20,34 +20,29 @@ def parsePage(iSUrl):
         print "Unknown error"
     return None
 
-def getPage(iSSearch):
-    aStrings = re.split("\s+", iSSearch)
-    first = True
-    aSPage = ""
-    for a in aStrings:
-        if a != "":
-            if not first:
-                aSPage += "%20"
-            else:
-                first = False
-            aSPage += a
-    return gUrlMain + aSPage + gUrlSort
+class PBPMain (webapp2.RequestHandler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'text/plain'
+        url = re.search("/search/.*", self.request.url).group(0)
+        url = url[8:len(url)]
+        modelName = re.search("^[^/]*", url).group(0)
+        search = url[len(modelName) + 1:len(url)]
+        theModel = pbmodel.getPBModel(modelName)
+        theDataLine = pbmodel.getPBDataLineExtractor(modelName)
+        try:
+            theUrl = theModel.url + search + theModel.filt
+            aParser = parsePage(theUrl)
+            aSelector = pbselector.getPBSelector(theModel.selector)
+            res = aSelector.search(aParser.document)
+            for node in res:
+                line = theDataLine.extractLine(node)
+                self.response.write(str(line) + '\n')
+        except:
+            self.response.write(modelName + '\n')
+            self.response.write('error + \n' + traceback.format_exc())
 
-def main(args):
-    if len(args) < 2:
-        print "No search given"
-    else:
-        aSSearch = ""
-        first = True
-        aParser = parsePage(getPage(args[1]))
-        aSelector = pbselector.getPBSelector(args[2])
-        res = aSelector.search(aParser.document)
-        print str(len(res)) + " results"
-        dataLine = pbextractor.PBDataLineExtractor()
-        dataLine.addExtractor(pbextractor.PBDataExtractor("title", None, pbselector.getPBSelector(".detLink")))
-        for node in res:
-            line = dataLine.extractLine(node)
-            print line
+application = webapp2.WSGIApplication([
+    ('/search/.*', PBPMain),
+    ('/admin', pbadmin.PBAdmin),
+], debug=True)
 
-if __name__ == "__main__":
-    main(sys.argv)
