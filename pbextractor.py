@@ -48,9 +48,10 @@ class PBDataLineExtractor:
         return aString
 
     def extractLine(self, iPBNode):
-        res = []
+        res = {}
         for aEx in self._dataExtractors:
-            res.append(aEx.extract(iPBNode))
+            key, value = aEx.extract(iPBNode)
+            res[key] = value
         return res
 
     def addExtractor(self, iExtractor):

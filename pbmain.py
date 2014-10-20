@@ -24,6 +24,7 @@ def parsePage(iSUrl):
 class PBPMain (webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'application/json'
+        self.response.headers.add_header("Access-Control-Allow-Origin", "*")
         url = re.search("/search/.*", self.request.url).group(0)
         url = url[8:len(url)]
         modelName = re.search("^[^/]*", url).group(0)
