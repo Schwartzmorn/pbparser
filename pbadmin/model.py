@@ -1,6 +1,5 @@
 from google.appengine.ext import ndb
-import pbselector
-import pbextractor
+from pbparser import selector, extractor
 
 class PBModel(ndb.Model):
     name = ndb.StringProperty()
@@ -30,13 +29,13 @@ def setPBModel(iSName, iSUrl, iSFilt, iSSelector):
     aPBModel.put()
 
 def removePBModel(iSName):
-    aQuery = PBModelExtractor.query(PBModelExtractor.modelName == iSModelName)
+    aQuery = PBModelExtractor.query(PBModelExtractor.modelName == iSName)
     res = aQuery.fetch()
     for line in res:
-        res.delete()
+        line.key.delete()
     theModel = getPBModel(iSName)
     if theModel:
-        theModel.delete()
+        theModel.key.delete()
 
 def getPBModelExtractor(iSModelName, iSName):
     aPBModelExtractorQuery = PBModelExtractor.query(PBModelExtractor.modelName == iSModelName,
@@ -57,15 +56,15 @@ def setPBModelExtractor(iSModelName, iSName, iSSelector, iSAttr, isRE):
 def removePBModelExtractor(iSModelName, iSName):
     aModel = getPBModelExtractor(iSModelName, iSName)
     if aModel:
-        aModel.delete()
+        aModel.key.delete()
 
-def getPBDataLineExtractor(iSModelName):
-    res = pbextractor.PBDataLineExtractor()
+def getDataLineExtractor(iSModelName):
+    res = extractor.DataLineExtractor()
     query = PBModelExtractor.query(PBModelExtractor.modelName == iSModelName)
     theExtractors = query.fetch()
     for anEx in theExtractors:
         aRe = (None if anEx.re == '' else anEx.re)
         anAttr = (None if anEx.attr == '' else anEx.attr)
         aSel = (None if anEx.selector == '' else anEx.selector)
-        res.addExtractor(pbextractor.PBDataExtractor(anEx.name, anAttr, aSel, aRe))
+        res.addExtractor(extractor.DataExtractor(anEx.name, anAttr, aSel, aRe))
     return res

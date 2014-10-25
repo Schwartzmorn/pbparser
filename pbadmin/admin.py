@@ -1,7 +1,7 @@
 import webapp2
 import traceback
 import re
-import pbmodel
+from pbadmin import model
 
 class PBAdmin(webapp2.RequestHandler):
     def _refillForm(self, iHTML):
@@ -20,7 +20,7 @@ class PBAdmin(webapp2.RequestHandler):
         if action == "Put":
             if self.request.get("modelName") and self.request.get("modelName") != "":
                 try:
-                    pbmodel.setPBModel(self.request.get("modelName"), self.request.get("url"), self.request.get("filt"), self.request.get("selector"))
+                    model.setPBModel(self.request.get("modelName"), self.request.get("url"), self.request.get("filt"), self.request.get("selector"))
                 except:
                     iHTML = iHTML.replace("&$res", "Problem occurred when saving the model" + str(self.request.get("modelName", "none")) + "\n" + traceback.format_exc())
             else:
@@ -28,9 +28,9 @@ class PBAdmin(webapp2.RequestHandler):
             iHTML = self._refillForm(iHTML)
         elif action == "Get":
             try:
-                aModel = pbmodel.getPBModel(self.request.get("modelName"))
+                aModel = model.getPBModel(self.request.get("modelName"))
                 aString = str(aModel.name) + ": url:" + str(aModel.url) + " filter: " + str(aModel.filt) + " selector: " + str(aModel.selector) + "\n"
-                aDataLine = pbmodel.getPBDataLineExtractor(self.request.get("modelName"))
+                aDataLine = model.getDataLineExtractor(self.request.get("modelName"))
                 aString += aDataLine.toString()
                 if aModel.name:
                     iHTML = iHTML.replace("&$modelName", aModel.name)
@@ -45,8 +45,8 @@ class PBAdmin(webapp2.RequestHandler):
                 iHTML = iHTML.replace("&$res", "Problem occurred when retrieving the model " + str(self.request.get("modelName", "none")) + "\n" + traceback.format_exc())
         elif action == "Delete":
             try:
-                pbmodel.removePBModel(self.request.get("modelName"))
-                iHTML = iHTML.replace("&$res", "Model " + self.request.get("modelName", "") + "was removed")
+                model.removePBModel(self.request.get("modelName"))
+                iHTML = iHTML.replace("&$res", "Model " + self.request.get("modelName", "") + " was removed")
             except:
                 iHTML = iHTML.replace("&$res", "Problem occurred when removing the model " + str(self.request.get("modelName", "none")) + "\n" + traceback.format_exc())
             iHTML = self._refillForm(iHTML)
@@ -57,14 +57,14 @@ class PBAdmin(webapp2.RequestHandler):
         if action == "Put":
             if self.request.get("modelName") and self.request.get("modelName") != "" and self.request.get("name") and self.request.get("name") != "":
                 try:
-                    pbmodel.setPBModelExtractor(self.request.get("modelName"), self.request.get("name"), self.request.get("exSelector"), self.request.get("attribute"), self.request.get("regex"))
+                    model.setPBModelExtractor(self.request.get("modelName"), self.request.get("name"), self.request.get("exSelector"), self.request.get("attribute"), self.request.get("regex"))
                 except:
-                    iHTML = iHTML.replace("&$res", "Problem occurred when saving the extractor" + str(self.request.get("modelName", "none")) + " " + str(self.request.get("name", "none")) + "\n" + traceback.format_exc())
+                    iHTML = iHTML.replace("&$res", "Problem occurred when saving the extractor " + str(self.request.get("modelName", "none")) + " " + str(self.request.get("name", "none")) + "\n" + traceback.format_exc())
             iHTML = self._refillForm(iHTML)
         elif action == "Get":
             if self.request.get("modelName") and self.request.get("modelName") != "" and self.request.get("name") and self.request.get("name") != "":
                 try:
-                    aExModel = pbmodel.getPBModelExtractor(self.request.get("modelName"), self.request.get("name"))
+                    aExModel = model.getPBModelExtractor(self.request.get("modelName"), self.request.get("name"))
                     aString = self.request.get("modelName") + "." + aExModel.name + " " + str(aExModel.selector) + " " + str(aExModel.attr)
                     iHTML = iHTML.replace("&$res", aString)
                     iHTML = iHTML.replace("&$modelName", self.request.get("modelName"))
@@ -73,12 +73,12 @@ class PBAdmin(webapp2.RequestHandler):
                     iHTML = iHTML.replace("&$attribute", aExModel.attr)
                     iHTML = iHTML.replace("&$regex", aExModel.regex)
                 except:
-                    iHTML = iHTML.replace("&$res", "Problem occurred when retrieving the extractor" + str(self.request.get("modelName", "none")) + " " + str(self.request.get("name", "none")) + "\n" + traceback.format_exc())
+                    iHTML = iHTML.replace("&$res", "Problem occurred when retrieving the extractor " + str(self.request.get("modelName", "none")) + " " + str(self.request.get("name", "none")) + "\n" + traceback.format_exc())
             
         elif action == "Delete":
             try:
-                pbmodel.getPBModelExtractor(self.request.get("modelName"), self.request.get("name"))
-                iHTML = iHTML.replace("&$res", "Model " + self.request.get("modelName", "") + "." + self.request.get("name", "") + "was removed")
+                model.removePBModelExtractor(self.request.get("modelName"), self.request.get("name"))
+                iHTML = iHTML.replace("&$res", "Model " + self.request.get("modelName", "") + "." + self.request.get("name", "") + " was removed")
             except:
                 iHTML = iHTML.replace("&$res", "Problem occurred when removing the model " + str(self.request.get("modelName", "none")) + " " + str(self.request.get("name", "none")) + "\n" + traceback.format_exc())
             iHTML = self._refillForm(iHTML)

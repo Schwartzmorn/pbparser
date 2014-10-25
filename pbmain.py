@@ -1,27 +1,22 @@
-import urllib2
-import sys
-import re
-import pbparser
-import pbmodel
-import pbadmin
-import pbselector
+import re, urllib2, traceback, json
+from pbparser import parser, selector
+from pbadmin import admin, model
 import webapp2
-import traceback
-import json
+import logging
 
 def parsePage(iSUrl):
     try:
         response = urllib2.urlopen(iSUrl)
-        aOParser = pbparser.PBParser()
+        aOParser = parser.Parser()
         aOParser.feed(response.read())
         return aOParser
     except urllib2.URLError as e:
-        print "Error: " + e.raison
+        logging.info("Error: " + e.raison)
     except:
-        print "Unknown error"
+        logging.info(traceback.format_exc())
     return None
 
-class PBPMain (webapp2.RequestHandler):
+class PBMain (webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.headers.add_header("Access-Control-Allow-Origin", "*")
@@ -29,24 +24,25 @@ class PBPMain (webapp2.RequestHandler):
         url = url[8:len(url)]
         modelName = re.search("^[^/]*", url).group(0)
         search = url[len(modelName) + 1:len(url)]
-        theModel = pbmodel.getPBModel(modelName)
-        theDataLine = pbmodel.getPBDataLineExtractor(modelName)
+        theModel = model.getPBModel(modelName)
+        theDataLine = model.getDataLineExtractor(modelName)
         try:
             theUrl = theModel.url + search + theModel.filt
             aParser = parsePage(theUrl)
-            aSelector = pbselector.getPBSelector(theModel.selector)
+            logging.info(theModel.selector)
+            aSelector = selector.getSelector(theModel.selector)
             res = aSelector.search(aParser.document)
             theRes = []
             for node in res:
                 theRes.append(theDataLine.extractLine(node))
             self.response.write(json.dumps(theRes))
         except:
-            self.response.write("error")
+            self.response.write("error\n")
             print "error when writing page: "
-            print traceback.format_exc()
+            self.response.write(traceback.format_exc())
 
 application = webapp2.WSGIApplication([
-    ('/search/.*', PBPMain),
-    ('/admin', pbadmin.PBAdmin),
+    ('/search/.*', PBMain),
+    ('/admin', admin.PBAdmin),
 ], debug=True)
 

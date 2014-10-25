@@ -1,7 +1,7 @@
 from HTMLParser import HTMLParser
 import re
 
-class PBData:
+class Data:
     def getType(self):
         return "data"
     def toString(self, iILevel = 0):
@@ -14,7 +14,7 @@ class PBData:
         self.data = iSData
         self.parentNode = iOParent
 
-class PBNode:
+class Node:
     def _sort(self, iSet, iRes):
         if self in iSet:
             iRes.append(self)
@@ -64,29 +64,29 @@ class PBNode:
         self.tag = iSTag
         self.parentNode = iOParent
 
-class PBParser(HTMLParser):
+class Parser(HTMLParser):
     voidElements = set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr'])
     def handle_starttag(self, iSTag, iDAttrs):
-        aNode = PBNode(iSTag, iDAttrs, self._curNode)
+        aNode = Node(iSTag, iDAttrs, self._curNode)
         self._curNode.addNode(aNode)
-        if iSTag not in PBParser.voidElements:
+        if iSTag not in Parser.voidElements:
             self._curNode = aNode
     def handle_endtag(self, iSTag):
         if self._curNode == self.document:
             print "### ERROR ### Encountered unexpected end of tag " + iSTag
-        elif self._curNode.tag != iSTag and iSTag not in PBParser.voidElements:
+        elif self._curNode.tag != iSTag and iSTag not in Parser.voidElements:
             print "### ERROR ### Encountered unexpected end of tag " + iSTag + ", expected " + self._curNode.tag
         else:
-            if iSTag not in PBParser.voidElements:
+            if iSTag not in Parser.voidElements:
                 self._curNode = self._curNode.parentNode
     def handle_data(self, iSData):
         if re.match("^\s*$", iSData) == None:
-            aNode = PBData(iSData, self._curNode)
+            aNode = Data(iSData, self._curNode)
             if self._curNode == None:
                 self.pbTree.append(aNode)
             else:
                 self._curNode.addNode(aNode)  
     def __init__(self):
         HTMLParser.__init__(self)
-        self.document = PBNode("document", {}, None)
+        self.document = Node("document", {}, None)
         self._curNode = self.document
