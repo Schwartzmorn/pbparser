@@ -1,6 +1,7 @@
 import re, urllib2, traceback, json
 from pbparser import parser, selector
 from pbadmin import admin, model
+from pbproxy import proxy
 import webapp2
 import logging
 
@@ -44,5 +45,6 @@ class PBMain (webapp2.RequestHandler):
 application = webapp2.WSGIApplication([
     ('/search/.*', PBMain),
     ('/admin', admin.PBAdmin),
+    ('/proxy', proxy.PBProxy),
 ], debug=True)
 
