@@ -11,10 +11,12 @@ class DefaultHTTPHandler(object):
     """
     def __init__(self):
         self.http_opener = build_opener()
+        self.url = None
 
     def set_authentication(self, uri, login, password):
         password_manager = HTTPPasswordMgrWithDefaultRealm()
         password_manager.add_password(realm=None, uri=uri, user=login, passwd=password)
+        self.url = uri
         self.http_opener = build_opener(HTTPBasicAuthHandler(password_manager), HTTPDigestAuthHandler(password_manager))
 
     def get(self, url):

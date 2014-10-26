@@ -1,7 +1,7 @@
 import json, time, logging
 from http.error import HTTPHandlerError
 from http.httphandler import DefaultHTTPHandler
-from http.config import DEFAULT_TIMEOUT, TRANSMISSION_URL,TRANSMISSION_USR, TRANSMISSION_PWD
+from http.config import DEFAULT_TIMEOUT
 
 LOGGER = logging.getLogger('rpcclient')
 LOGGER.setLevel(logging.INFO)
@@ -10,7 +10,6 @@ class RPCClient(object):
     def __init__(self):
         self.session_id = 0
         self.http_handler = DefaultHTTPHandler()
-        self.http_handler.set_authentication(TRANSMISSION_URL, TRANSMISSION_USR, TRANSMISSION_PWD)
 
     def request(self, method, arguments={}):
         query = json.dumps({'method': method, 'arguments': arguments})
@@ -33,9 +32,9 @@ class RPCClient(object):
         while True:
             try:
                 LOGGER.info(json.dumps({
-                    'url': TRANSMISSION_URL, 'headers': headers, 
+                    'url': self.http_handler.url, 'headers': headers, 
                     'query': query, 'timeout': timeout}, indent=2))
-                result = self.http_handler.request(TRANSMISSION_URL, query, headers, timeout)
+                result = self.http_handler.request(self.http_handler.url, query, headers, timeout)
                 break
             except HTTPHandlerError as error:
                 if error.code == 409:
